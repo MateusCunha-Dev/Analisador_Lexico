@@ -8,14 +8,15 @@ class AnalisadorLexico:
         self.palavras_reservadas = {
             "qual", "quando", "quem", "documento", "tamanho", "formato",
             "título", "autor", "contém", "palavra", "pasta", "criado",
-            "está", "no", "com", "é", "o", "a", "os", "as", "na", "no", "do"
+            "está", "no", "com", "é", "o", "a", "os", "as", "na", "do",
+            "tem", "que", "estão", "foi", "de"
         }
 
         self.caracteres_validos = re.compile(
             r'^[a-zA-Z0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s\.,;:!?()\-_\+*=@#%&\[\]\{\}\'"$\/]+$'
         )
         self.regex_tokens = re.compile(r'([a-zA-ZÀ-ÿ0-9]+|[\.,;:!?()\-_\+*=@#%&\[\]\{\}\'"$\/])')
-        self.tabela_simbolos = []
+        self.tabela_simbolos = {}  # palavra -> tipo
         self.fila_tokens = deque()
         self.caracteres_invalidos = []
 
@@ -52,14 +53,29 @@ class AnalisadorLexico:
                     if palavra_existente:
                         self.fila_tokens.append(palavra_existente)
                     else:
-                        self.tabela_simbolos.append(token_lower)
+                        tipo_inferido = self.inferir_tipo(token_lower)
+                        self.tabela_simbolos[token_lower] = tipo_inferido
                         self.fila_tokens.append(token_lower)
 
         return True, "Análise concluída"
 
+    def inferir_tipo(self, palavra):
+        formatos = {"pdf", "docx", "txt", "html"}
+        palavras_titulo = {"documento", "relatório", "técnico", "orçamento", "joão", "silva"}
+
+        if palavra in formatos:
+            return "<formato>"
+        elif palavra in palavras_titulo:
+            return "<titulo>"
+        elif palavra.isdigit():
+            return "<numero>"
+        else:
+            return "<palavra>"
+
     def get_resultados(self):
         return {
-            'tabela_simbolos': list(self.tabela_simbolos),
+            'tabela_simbolos': dict(self.tabela_simbolos),
             'fila_tokens': list(self.fila_tokens),
             'caracteres_invalidos': sorted(self.caracteres_invalidos, key=lambda x: x[0])
         }
+
