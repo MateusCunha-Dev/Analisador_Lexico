@@ -5,12 +5,16 @@ from utils import carregar_stopwords, validar_palavra_portugues, validar_token, 
 class AnalisadorLexico:
     def __init__(self):
         self.stopwords = carregar_stopwords('stopwords.txt')
+        self.palavras_reservadas = {
+            "qual", "quando", "quem", "documento", "tamanho", "formato",
+            "título", "autor", "contém", "palavra", "pasta", "criado",
+            "está", "no", "com", "é", "o", "a", "os", "as", "na", "no", "do"
+        }
+
         self.caracteres_validos = re.compile(
             r'^[a-zA-Z0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s\.,;:!?()\-_\+*=@#%&\[\]\{\}\'"$\/]+$'
         )
-        self.regex_tokens = re.compile(
-            r'([a-zA-ZÀ-ÿ0-9]+|[\.,;:!?()\-_\+*=@#%&\[\]\{\}\'"$\/])'
-        )
+        self.regex_tokens = re.compile(r'([a-zA-ZÀ-ÿ0-9]+|[\.,;:!?()\-_\+*=@#%&\[\]\{\}\'"$\/])')
         self.tabela_simbolos = []
         self.fila_tokens = deque()
         self.caracteres_invalidos = []
@@ -35,10 +39,10 @@ class AnalisadorLexico:
                 continue
 
             if re.match(r'^[0-9]+$', token) or re.match(r'^[^\wÀ-ÿ]+$', token):
-                self.fila_tokens.append(token)
+                self.fila_tokens.append(token.lower())
             elif validar_palavra_portugues(token.lower()):
                 token_lower = token.lower()
-                if token_lower not in self.stopwords:
+                if token_lower not in self.stopwords or token_lower in self.palavras_reservadas:
                     palavra_existente = None
                     for palavra in self.tabela_simbolos:
                         if similaridade_levenshtein(palavra, token_lower):
@@ -48,8 +52,8 @@ class AnalisadorLexico:
                     if palavra_existente:
                         self.fila_tokens.append(palavra_existente)
                     else:
-                        self.tabela_simbolos.append(token)
-                        self.fila_tokens.append(token)
+                        self.tabela_simbolos.append(token_lower)
+                        self.fila_tokens.append(token_lower)
 
         return True, "Análise concluída"
 

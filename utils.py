@@ -15,5 +15,5 @@ def validar_token(token):
         return True
     return validar_palavra_portugues(token)
 
-def similaridade_levenshtein(palavra1, palavra2, limite_similaridade=0.8):
-    return SequenceMatcher(None, palavra1.lower(), palavra2.lower()).ratio() >= limite_similaridade
+def similaridade_levenshtein(p1, p2, limite=0.8):
+    return SequenceMatcher(None, p1.lower(), p2.lower()).ratio() >= limite
