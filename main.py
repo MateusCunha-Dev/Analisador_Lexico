@@ -1,6 +1,6 @@
 from analisador_lexico import AnalisadorLexico
 from analisador_sintatico import AnalisadorSintatico
-
+from compilador import compilar_para_L1
 
 def main():
     analisador_lexico = AnalisadorLexico()
@@ -33,6 +33,11 @@ def main():
         print("Tabela de símbolos (com tipo inferido):")
         for palavra, tipo in resultados['tabela_simbolos'].items():
             print(f"  - {palavra}: {tipo}")
+
+        # 🔽 NOVO BLOCO: Compilação para Linguagem L1 (Pergamum)
+        print("\n--- COMPILAÇÃO PARA LINGUAGEM L1 (Pergamum) ---")
+        url_l1 = compilar_para_L1(resultados['tabela_simbolos'])
+        print(f"URL gerada: {url_l1}\n")
 
         tipo, estrutura = analisador_sintatico.reconhecer_estrutura(tokens)
 
@@ -102,4 +107,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
